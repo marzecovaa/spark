@@ -1,6 +1,9 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler, OneHotEncoder
+from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.compose import ColumnTransformer
 
 
 def preprocessor(input_csv: str):
@@ -31,6 +34,25 @@ def preprocessor(input_csv: str):
     #define X, Y
     X = df.drop(columns = ['id','condition_cat'])
     y = df['condition_cat']
+
+
+    #encoding
+    r_scaler = RobustScaler()
+    mm_scaler = MinMaxScaler()
+    encoder = OneHotEncoder(drop = 'if_binary')
+
+    data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
+    data_to_mmscale = ['bmi']
+    data_to_encode = X.drop(columns = ['age_at_diagnosis', 'age',
+                                                'height', 'weight','bmi']).columns
+    column_prep = ColumnTransformer(transformers=[
+            ("robust", r_scaler, data_to_rscale),
+            ("mm", mm_scaler, data_to_mmscale),
+            ("enc",encoder, data_to_encode)
+        ])
+
+    X = column_prep.fit_transform(X)
+
 
     #split train and test
     X_train, X_test, y_train, y_test = train_test_split(
