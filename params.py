@@ -1,4 +1,4 @@
-questionair_dict = {'01': 'Dribbling of saliva during the daytime',
+QUESTIONAIR_DICT = {'01': 'Dribbling of saliva during the daytime',
  '02': 'Loss or change in your ability to taste or smell',
  '03': 'Difficulty swallowing food or drink or problems with choking',
  '04': 'Vomiting or feelings of sickness (nausea)',
