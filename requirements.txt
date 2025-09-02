@@ -1,7 +1,8 @@
 #Standard Library
-sklearn
+scikit-learn
 numpy
 pandas
+import-ipynb
 
 # XGBoost
 xgboost

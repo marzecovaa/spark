@@ -37,7 +37,3 @@ def preprocessor(input_csv: str):
     X, y, test_size=0.20, random_state=42, stratify = y)
 
     return X_train, X_test, y_train, y_test
-
-
-
-X_train, X_test, y_train, y_test = preprocessor("/Users/sebastian.zilles/code/marzecovaa/spark/processed_data/merged_dfq_v2.csv")
