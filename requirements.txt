@@ -3,6 +3,7 @@ scikit-learn
 numpy
 pandas
 import-ipynb
+-e .
 
 # XGBoost
 xgboost
