@@ -28,3 +28,6 @@ QUESTIONAIR_DICT = {'01': 'Dribbling of saliva during the daytime',
  '28': 'Excessive sweating',
  '29': 'Double vision',
  '30': 'Believing things are happening to you that other people say are not true'}
+
+
+CONDITION_DICT ={0:'Healthy', 1:'Parkinson',2:'Multiple Sclerosis'}
