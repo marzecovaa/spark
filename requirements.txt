@@ -4,7 +4,6 @@ numpy
 pandas
 import-ipynb
 
-
 #sklearn
 scikit-learn
 
@@ -21,3 +20,5 @@ catboost
 # API
 fastapi
 uvicorn
+
+#-e .

@@ -2,11 +2,18 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler, OneHotEncoder
-from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.compose import ColumnTransformer
 
 
 def preprocessor(input_csv: str):
+    """
+    This function reads the merged csv file, selects relevant columns,
+    performs a simple preprocessing on questionnaire (one hot encoding)
+    + demographics data
+    The data is split in the train_test...
+    TO DO: split train/test into a separate function?
+    TO DO: data load func?
+    """
 
     #load csv file
     df = pd.read_csv(input_csv)
