@@ -2,11 +2,18 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler, OneHotEncoder
-from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.compose import ColumnTransformer
 
 
 def preprocessor(input_csv: str):
+    """
+    This function reads the merged csv file, selects relevant columns,
+    performs a simple preprocessing on questionnaire (one hot encoding)
+    + demographics data
+    The data is split in the train_test...
+    TO DO: split train/test into a separate function?
+    TO DO: data load func?
+    """
 
     #load csv file
     df = pd.read_csv(input_csv)
@@ -35,6 +42,10 @@ def preprocessor(input_csv: str):
     X = df.drop(columns = ['id','condition_cat'])
     y = df['condition_cat']
 
+    #split train and test
+    X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.20, random_state=42, stratify = y)
+
 
     #encoding
     r_scaler = RobustScaler()
@@ -51,11 +62,9 @@ def preprocessor(input_csv: str):
             ("enc",encoder, data_to_encode)
         ])
 
-    X = column_prep.fit_transform(X)
+    preproc = column_prep.fit(X_train)
 
-
-    #split train and test
-    X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.20, random_state=42, stratify = y)
+    X_train = preproc.transform(X_train)
+    X_test = preproc.transform(X_test)
 
     return X_train, X_test, y_train, y_test
