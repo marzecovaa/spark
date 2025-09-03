@@ -43,11 +43,12 @@ def predict():
 
 #     X_processed = preprocess_features(X_pred)
 #     y_pred = model.predict(X_processed)
+#     return dict(prediction=float(y_pred))
 
 #     # ⚠️ fastapi only accepts simple Python data types as a return value
 #     # among them dict, list, str, int, float, bool
 #     # in order to be able to convert the api response to JSON
-#     return dict(prediction=float(y_pred))
+#     
 
 
 
