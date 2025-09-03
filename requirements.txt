@@ -5,8 +5,19 @@ pandas
 import-ipynb
 -e .
 
+#sklearn
+scikit-learn
+
+#TensorFlow
+TensorFlow
+keras
+
 # XGBoost
 xgboost
 
 #CatBoost
 catboost
+
+# API
+fastapi
+uvicorn
