@@ -1,8 +1,8 @@
-import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler, OneHotEncoder
+from sklearn.preprocessing import MinMaxScaler, RobustScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
+from spark.model_io import save_transformer
 
 
 def preprocessor(input_csv: str):
@@ -20,14 +20,15 @@ def preprocessor(input_csv: str):
 
 
     #drop unnecessary columns
-    columns_to_drop = ['study_id',
+    columns_to_drop = ['study_id_x',
+                       'study_id_y',
                        'condition',
                        'disease_comment',
                        'appearance_in_first_grade_kinship',
                        'effect_of_alcohol_on_tremor',
                        'questionnaire_name',
                        'resource_type',
-                       'questionnaire_id']
+                       'questionnaire_id','Unnamed: 0']
 
     df = df.drop(columns= columns_to_drop)
 
@@ -39,8 +40,8 @@ def preprocessor(input_csv: str):
     df.loc[mask,'age_at_diagnosis'] = df.loc[mask,'age']
 
     #define X, Y
-    X = df.drop(columns = ['id','condition_cat'])
-    y = df['condition_cat']
+    X = df.drop(columns = ['id','label'])
+    y = df['label']
 
     #split train and test
     X_train, X_test, y_train, y_test = train_test_split(
@@ -50,7 +51,7 @@ def preprocessor(input_csv: str):
     #encoding
     r_scaler = RobustScaler()
     mm_scaler = MinMaxScaler()
-    encoder = OneHotEncoder(drop = 'if_binary')
+    encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore')
 
     data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
     data_to_mmscale = ['bmi']
@@ -62,9 +63,21 @@ def preprocessor(input_csv: str):
             ("enc",encoder, data_to_encode)
         ])
 
-    preproc = column_prep.fit(X_train)
+    transformer = column_prep.fit(X_train)
 
-    X_train = preproc.transform(X_train)
-    X_test = preproc.transform(X_test)
+    # Save transformer immediately
+    save_transformer(transformer)
+
+    X_train = transformer.transform(X_train)
+    X_test = transformer.transform(X_test)
 
     return X_train, X_test, y_train, y_test
+
+def preprocess_input(df: pd.DataFrame, transformer=None):
+    """
+    Function takes a DataFrame and returns tranformed features.
+    Assumes df is already cleaned and structured like X
+    """
+    if transformer is None:
+        raise ValueError("Transformer must be provided for inference.")
+    return transformer.transform(df)
