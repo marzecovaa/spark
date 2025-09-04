@@ -1,3 +1,9 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 QUESTIONAIR_DICT = {'01': 'Dribbling of saliva during the daytime',
  '02': 'Loss or change in your ability to taste or smell',
  '03': 'Difficulty swallowing food or drink or problems with choking',
@@ -31,3 +37,11 @@ QUESTIONAIR_DICT = {'01': 'Dribbling of saliva during the daytime',
 
 
 CONDITION_DICT ={0:'Healthy', 1:'Parkinson',2:'Multiple Sclerosis'}
+
+LOCAL_REGISTRY_PATH = os.getenv("LOCAL_REGISTRY_PATH", "./model_registry/")
+BUCKET_NAME = os.getenv("BUCKET_NAME")
+MLFLOW_MODEL_NAME = os.getenv("MLFLOW_MODEL_NAME", "default_model")
+MLFLOW_EXPERIMENT = os.getenv("MLFLOW_EXPERIMENT")
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
+MODEL_TARGET = os.getenv("MODEL_TARGET", "local")  # 'local', 'gcs', 'mlflow'
+MODEL_TYPE = os.getenv("MODEL_TYPE", "joblib")     # 'joblib', 'keras'

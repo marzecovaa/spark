@@ -1,15 +1,12 @@
 import numpy as np
-from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
-from sklearn.pipeline import Pipeline, make_pipeline
+import joblib
 from sklearn.metrics import classification_report, confusion_matrix, balanced_accuracy_score
-from imblearn.over_sampling import SMOTE
-from imblearn.pipeline import Pipeline
 from sklearn.ensemble import StackingClassifier
+from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from catboost import CatBoostClassifier
-from colorama import Fore, Style
-
+from spark.model_io import save_model
 
 def train_base_model(
     X_train: np.ndarray,
@@ -42,17 +39,24 @@ def train_base_model(
     )
 
     #Train
-    base_model = stacked_model.fit(X_train, y_train)
+    trained_model = stacked_model.fit(X_train, y_train)
 
-    return base_model
+    # Save and return path
+    model_path = save_model(trained_model)
+    return model_path
+
 
 def evaluate_base_model(
-    model,
+    model_path: str,
     X_test: np.ndarray,
     y_test: np.ndarray) -> float:
 
-    """Evaluate trained model on the test data set
     """
+    Load & evaluate trained model from the given path on the test data set
+    """
+    # Load model from path
+    model = joblib.load(model_path)
+
     y_pred = model.predict(X_test)
     base_score = round(balanced_accuracy_score(y_test, y_pred),2)
 
