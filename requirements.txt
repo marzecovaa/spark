@@ -21,4 +21,8 @@ catboost
 fastapi
 uvicorn
 
+# Feature engineering
+tsfresh
+
+
 #-e .
