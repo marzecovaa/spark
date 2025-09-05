@@ -1,8 +1,23 @@
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
+##################  VARIABLES  ##################
+LOCAL_REGISTRY_PATH = os.getenv("LOCAL_REGISTRY_PATH", "./model_registry/")
+BUCKET_NAME = os.getenv("BUCKET_NAME")
+MLFLOW_MODEL_NAME = os.getenv("MLFLOW_MODEL_NAME", "default_model")
+MLFLOW_EXPERIMENT = os.getenv("MLFLOW_EXPERIMENT")
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
+MODEL_TARGET = os.getenv("MODEL_TARGET", "local")  # 'local', 'gcs', 'mlflow'
+MODEL_TYPE = os.getenv("MODEL_TYPE", "joblib")     # 'joblib', 'keras'
+GCP_PROJECT = os.getenv("GCP_PROJECT")
+GCP_PROJECT_WAGON = os.getenv("GCP_PROJECT_WAGON")
+GCP_REGION = os.environ.get("GCP_REGION")
+DOCKER_IMAGE_NAME = os.getenv("DOCKER_IMAGE_NAME")
+GAR_MEMORY = os.getenv("GAR_MEMORY")
+
+##################  CONSTANTS  #####################
 
 QUESTIONAIR_DICT = {'01': 'Dribbling of saliva during the daytime',
  '02': 'Loss or change in your ability to taste or smell',
@@ -35,13 +50,6 @@ QUESTIONAIR_DICT = {'01': 'Dribbling of saliva during the daytime',
  '29': 'Double vision',
  '30': 'Believing things are happening to you that other people say are not true'}
 
-
 CONDITION_DICT ={0:'Healthy', 1:'Parkinson',2:'Other Motor Neurone Disease'}
 
-LOCAL_REGISTRY_PATH = os.getenv("LOCAL_REGISTRY_PATH", "./model_registry/")
-BUCKET_NAME = os.getenv("BUCKET_NAME")
-MLFLOW_MODEL_NAME = os.getenv("MLFLOW_MODEL_NAME", "default_model")
-MLFLOW_EXPERIMENT = os.getenv("MLFLOW_EXPERIMENT")
-MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
-MODEL_TARGET = os.getenv("MODEL_TARGET", "local")  # 'local', 'gcs', 'mlflow'
-MODEL_TYPE = os.getenv("MODEL_TYPE", "joblib")     # 'joblib', 'keras'
+
