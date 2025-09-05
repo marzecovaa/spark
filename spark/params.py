@@ -36,7 +36,7 @@ QUESTIONAIR_DICT = {'01': 'Dribbling of saliva during the daytime',
  '30': 'Believing things are happening to you that other people say are not true'}
 
 
-CONDITION_DICT ={0:'Healthy', 1:'Parkinson',2:'Multiple Sclerosis'}
+CONDITION_DICT ={0:'Healthy', 1:'Parkinson',2:'Other Motor Neurone Disease'}
 
 LOCAL_REGISTRY_PATH = os.getenv("LOCAL_REGISTRY_PATH", "./model_registry/")
 BUCKET_NAME = os.getenv("BUCKET_NAME")
