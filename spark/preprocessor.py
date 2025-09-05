@@ -113,7 +113,7 @@ def questionair_preprocessor(input_csv: str):
     y = df['label']
 
     #split train and test
-    X_train, X_test, y_train, y_test = train_test_split(
+    X_train, X_test, y_train_prep, y_test_prep = train_test_split(
     X, y, test_size=0.20, random_state=42, stratify = y)
 
 
@@ -137,10 +137,10 @@ def questionair_preprocessor(input_csv: str):
     # Save transformer immediately
     save_transformer(transformer)
 
-    X_train = transformer.transform(X_train)
-    X_test = transformer.transform(X_test)
+    X_train_prep = transformer.transform(X_train)
+    X_test_prep = transformer.transform(X_test)
 
-    return X_train, X_test, y_train, y_test
+    return X_train_prep, X_test_prep, y_train_prep, y_test_prep
 
 
 def timeseries_preprocessor():
