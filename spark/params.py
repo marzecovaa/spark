@@ -50,6 +50,4 @@ QUESTIONAIR_DICT = {'01': 'Dribbling of saliva during the daytime',
  '29': 'Double vision',
  '30': 'Believing things are happening to you that other people say are not true'}
 
-CONDITION_DICT ={0:'Healthy', 1:'Parkinson',2:'Other Motor Neurone Disease'}
-
-
+CONDITION_DICT ={0:"Healthy", 1:"Parkinson's",2:"Other Motor Disease"}
