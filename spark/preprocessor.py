@@ -51,7 +51,7 @@ def preprocessor(input_csv: str):
     #encoding
     r_scaler = RobustScaler()
     mm_scaler = MinMaxScaler()
-    encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore')
+    encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore', sparse_output = False)
 
     data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
     data_to_mmscale = ['bmi']
