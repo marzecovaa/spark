@@ -56,7 +56,7 @@ def preprocessor(input_csv: str):
     data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
     data_to_mmscale = ['bmi']
     data_to_encode = X.drop(columns = ['age_at_diagnosis', 'age',
-                                                'height', 'weight','bmi']).columns
+                                                'height', 'weight','bmi','subject_id']).columns
     column_prep = ColumnTransformer(transformers=[
             ("robust", r_scaler, data_to_rscale),
             ("mm", mm_scaler, data_to_mmscale),
@@ -125,7 +125,7 @@ def questionair_preprocessor(input_csv: str):
     data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
     data_to_mmscale = ['bmi']
     data_to_encode = X.drop(columns = ['age_at_diagnosis', 'age',
-                                                'height', 'weight','bmi']).columns
+                                                'height', 'weight','bmi','subject_id']).columns
     column_prep = ColumnTransformer(transformers=[
             ("robust", r_scaler, data_to_rscale),
             ("mm", mm_scaler, data_to_mmscale),
@@ -142,6 +142,8 @@ def questionair_preprocessor(input_csv: str):
 
     return X_train_prep, X_test_prep, y_train_prep, y_test_prep
 
+#def question_feature_permutation():
+    
 
 def timeseries_preprocessor():
 
