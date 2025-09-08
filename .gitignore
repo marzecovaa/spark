@@ -26,6 +26,8 @@ raw_data/
 # Add files you want to include in the git repo using `git add -f file_name`
 data/
 
+catboost_info/
+notebooks/catboost_info/
 # Saved models
 models/
 *.joblib
