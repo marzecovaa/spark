@@ -22,7 +22,7 @@ def preprocessor(input_csv: str):
     """
 
     #load csv file
-    df = pd.read_csv(input_cs)
+    df = pd.read_csv(input_csv)
 
 
     #drop unnecessary columns
@@ -62,7 +62,7 @@ def preprocessor(input_csv: str):
     data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
     data_to_mmscale = ['bmi']
     data_to_encode = X.drop(columns = ['age_at_diagnosis', 'age',
-                                                'height', 'weight','bmi']).columns
+                                                'height', 'weight','bmi', 'subject_id']).columns
     column_prep = ColumnTransformer(transformers=[
             ("robust", r_scaler, data_to_rscale),
             ("mm", mm_scaler, data_to_mmscale),
