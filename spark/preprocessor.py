@@ -22,7 +22,7 @@ def preprocessor(input_csv: str):
     """
 
     #load csv file
-    df = pd.read_csv(input_cs)
+    df = pd.read_csv(input_csv)
 
 
     #drop unnecessary columns
