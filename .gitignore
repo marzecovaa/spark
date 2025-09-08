@@ -27,6 +27,8 @@ raw_data/
 data/
 
 # Saved models
+catboost_info/
+
 models/
 *.joblib
 *.h5
