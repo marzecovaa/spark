@@ -62,7 +62,9 @@ def preprocessor(input_csv: str):
     data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
     data_to_mmscale = ['bmi']
     data_to_encode = X.drop(columns = ['age_at_diagnosis', 'age',
+
                                                 'height', 'weight','bmi','subject_id']).columns
+
     column_prep = ColumnTransformer(transformers=[
             ("robust", r_scaler, data_to_rscale),
             ("mm", mm_scaler, data_to_mmscale),
@@ -118,18 +120,6 @@ def questionair_preprocessor(input_csv: str):
     mm_scaler = MinMaxScaler()
     encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore')
 
-<<<<<<< HEAD
-    data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
-    data_to_mmscale = ['bmi']
-    data_to_encode = X.drop(columns = ['age_at_diagnosis', 'age',
-                                                'height', 'weight','bmi','subject_id']).columns
-    column_prep = ColumnTransformer(transformers=[
-            ("robust", r_scaler, data_to_rscale),
-            ("mm", mm_scaler, data_to_mmscale),
-            ("enc",encoder, data_to_encode)
-        ])
-=======
->>>>>>> 0c40f318aecb64327ec2757e92367f4a38f29d8f
 
     data_to_mm_scale = ['age','bmi','height','weight']
     data_to_encode = ['gender', 'handedness','appearance_in_kinship','01', '02', '03', '04', '05', '06', '07', '08',
@@ -187,9 +177,6 @@ def load_timeseries_data(path: str):
     )
 
     return da
-
-#def question_feature_permutation():
-    
 
 
 
