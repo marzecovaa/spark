@@ -104,6 +104,7 @@ def load_q_data(input_csv: str):
     df.loc[mask,'age_at_diagnosis'] = df.loc[mask,'age']
 
     df = df.sort_values(by = 'id')
+    df = df.reset_index()
 
     #df_q_data = df[['id','label','age_at_diagnosis','age','bmi','height','weight','gender', 'handedness','appearance_in_kinship','01', '02', '03', '04', '05', '06', '07', '08',
     #   '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20','21', '22', '23', '24', '25', '26', '27', '28', '29', '30']]
