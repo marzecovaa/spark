@@ -123,6 +123,9 @@ class Preprocess_Q:
     This function reads q data and preprocesses them for a final analysis
     """
     def __init__(self,feature_importance = False):
+        mm_scaler = MinMaxScaler()
+        r_scaler = RobustScaler()
+        encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore', sparse_output=False)
 
         mm_scaler = MinMaxScaler()
         r_scaler = RobustScaler()
@@ -131,6 +134,7 @@ class Preprocess_Q:
         if feature_importance:
             data_to_rscale = ['age_at_diagnosis', 'age']
             data_to_encode = ['gender', 'appearance_in_kinship','02', '03', '09', '13', '17', '20']
+
             self.column_prep = ColumnTransformer(transformers=[("r", r_scaler, data_to_rscale), ("enc",encoder, data_to_encode)])
 
         else:
