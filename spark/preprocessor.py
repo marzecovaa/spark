@@ -124,13 +124,16 @@ class Preprocess_Q:
     """
     def __init__(self,feature_importance = False):
 
+        mm_scaler = MinMaxScaler()
+        r_scaler = RobustScaler()
+        encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore', sparse_output=False)
+
         if feature_importance:
-            pass
+            data_to_rscale = ['age_at_diagnosis', 'age']
+            data_to_encode = ['gender', 'appearance_in_kinship','02', '03', '09', '13', '17', '20']
+            self.column_prep = ColumnTransformer(transformers=[("r", r_scaler, data_to_rscale), ("enc",encoder, data_to_encode)])
 
         else:
-            mm_scaler = MinMaxScaler()
-            r_scaler = RobustScaler()
-            encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore', sparse_output=False)
             data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
             data_to_mmscale = ['bmi']
             data_to_encode = ['gender', 'handedness','appearance_in_kinship','01', '02', '03', '04', '05', '06', '07', '08',
