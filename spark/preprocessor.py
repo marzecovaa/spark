@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, RobustScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from spark.model_io import save_transformer
+from spark.utils import get_channel_names
 
 
 import numpy as np
@@ -83,12 +84,13 @@ def preprocessor(input_csv: str):
 
 
 
-
-
-
-def load_questionair_data(input_csv: str):
+def load_q_data(input_csv: str):
     """
-    This function reads the merged csv file"
+    This function reads the merged csv file and returns the data frame and list of ids
+
+    Usage:
+    raw_prep_dir  = '../processed_data/'
+    X_data, y_data, id_list = load_q_data(raw_prep_dir + 'merged_dfq.csv')"
     """
     #load csv file
     df = pd.read_csv(input_csv,index_col=0)
@@ -101,56 +103,62 @@ def load_questionair_data(input_csv: str):
     mask = df['age_at_diagnosis']==0
     df.loc[mask,'age_at_diagnosis'] = df.loc[mask,'age']
 
-    df_questionair_data = df[['id','label','age','bmi','height','weight','gender', 'handedness','appearance_in_kinship','01', '02', '03', '04', '05', '06', '07', '08',
+    df = df.sort_values(by = 'id')
+
+    #df_q_data = df[['id','label','age_at_diagnosis','age','bmi','height','weight','gender', 'handedness','appearance_in_kinship','01', '02', '03', '04', '05', '06', '07', '08',
+    #   '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20','21', '22', '23', '24', '25', '26', '27', '28', '29', '30']]
+
+    X_data=df[['id','age', 'age_at_diagnosis','bmi','height','weight','gender', 'handedness','appearance_in_kinship','01', '02', '03', '04', '05', '06', '07', '08',
        '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20','21', '22', '23', '24', '25', '26', '27', '28', '29', '30']]
 
-    X_q=df[['id','age','bmi','height','weight','gender', 'handedness','appearance_in_kinship','01', '02', '03', '04', '05', '06', '07', '08',
-       '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20','21', '22', '23', '24', '25', '26', '27', '28', '29', '30']]
+    y_data=df[['id','label']]
 
-    y_q=df[['id','label']]
+    id_list = df['id']
 
-    return X_q, y_q
-
-
-def questionair_preprocessor(input_csv: str):
-
-    #load csv file
-    df = load_questionair_data(input_csv)
-
-    mm_scaler = MinMaxScaler()
-    encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore')
+    return X_data, y_data, id_list
 
 
-    data_to_mm_scale = ['age','bmi','height','weight']
-    data_to_encode = ['gender', 'handedness','appearance_in_kinship','01', '02', '03', '04', '05', '06', '07', '08',
-       '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20','21', '22', '23', '24', '25', '26', '27', '28', '29', '30']
+class Preprocess_Q:
+    """
+    This function reads q data and preprocesses them for a final analysis
+    """
+    def __init__(self,feature_importance = False):
 
-    column_prep = ColumnTransformer(transformers=[("mm", mm_scaler, data_to_mm_scale), ("enc",encoder, data_to_encode)])
-    transformer = column_prep.fit(X_train)
+        if feature_importance:
+            pass
 
-    return
+        else:
+            mm_scaler = MinMaxScaler()
+            r_scaler = RobustScaler()
+            encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore', sparse_output=False)
+            data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
+            data_to_mmscale = ['bmi']
+            data_to_encode = ['gender', 'handedness','appearance_in_kinship','01', '02', '03', '04', '05', '06', '07', '08',
+                '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20','21', '22', '23', '24', '25', '26', '27', '28', '29', '30']
+
+            self.column_prep = ColumnTransformer(transformers=[("r", r_scaler, data_to_rscale), ("mm", mm_scaler, data_to_mmscale), ("enc",encoder, data_to_encode)])
+
+    def fit(self, X):
+        self.column_prep.fit(X)
+
+        return self
 
 
+    def transform(self, X):
 
+        return self.column_prep.transform(X)
 
 
 def load_timeseries_data(path: str):
     """
     This function reads timeseries files and returns xarray
+    path - path to the folder with the data (time seried data have to be stored in a subfolder movement/)
     """
 
     file_list = pd.read_csv(Path(path) / "file_list.csv")
 
     # Define channel names (132 total)
-    channels = [
-        f"{task}_{sensor}_{device}_{axis}"
-        for task in ["Relaxed1", "Relaxed2", "RelaxedTask1", "RelaxedTask2",
-                     "StretchHold", "HoldWeight", "DrinkGlas", "CrossArms",
-                     "TouchNose", "Entrainment1", "Entrainment2"]
-        for device in ["LeftWrist", "RightWrist"]
-        for sensor in ["Acceleration", "Rotation"]
-        for axis in ["X", "Y", "Z"]
-    ]
+    channels = get_channel_names()
 
     data, ids = [], []
 
@@ -179,8 +187,6 @@ def load_timeseries_data(path: str):
     return da
 
 
-
-
 def preprocess_input(df: pd.DataFrame, transformer=None):
     """
     Function takes a DataFrame and returns tranformed features.
@@ -191,10 +197,12 @@ def preprocess_input(df: pd.DataFrame, transformer=None):
     return transformer.transform(df)
 
 
+def train_test_split_ids (id_list, y_data, test_size = 0.2, random_state = None, stratify = True):
+    """
+    Returns split y and an id list to split questionnaire and time_series data
+    """
+    if stratify:
+        y = y_data['label']
+        X_train_id, X_test_id,  y_train, y_test = train_test_split(id_list, y, test_size=test_size,random_state=random_state, stratify= y)
 
-def split_with_ids(X, y, test_size,random_state,stratify):
-    X_train,X_test, _,_ =train_test_split(X, y, test_size=test_size,random_state=random_state,  stratify= stratify)
-    X_train_id = (X_train["id"]).sort_values()
-    X_test_id = (X_test["id"]).sort_values()
-
-    return X_train_id, X_test_id
+        return X_train_id, X_test_id, y_train, y_test
