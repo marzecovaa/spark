@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, RobustScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from spark.model_io import save_transformer
-from spark.utils import get_channel_names
+from spark.utils import get_channel_names, channel_wise_boss, boss_transform_data
 
 
 import numpy as np
@@ -62,9 +62,8 @@ def preprocessor(input_csv: str):
 
     data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
     data_to_mmscale = ['bmi']
-    data_to_encode = X.drop(columns = ['age_at_diagnosis', 'age',
-
-                                                'height', 'weight','bmi','subject_id']).columns
+    data_to_encode = X.drop(columns = ['age_at_diagnosis', 'age','height',
+                                       'weight','bmi','subject_id']).columns
 
     column_prep = ColumnTransformer(transformers=[
             ("robust", r_scaler, data_to_rscale),
@@ -119,6 +118,17 @@ def load_q_data(input_csv: str):
     return X_data, y_data, id_list
 
 
+def train_test_split_ids (id_list, y_data, test_size = 0.2, random_state = None, stratify = True):
+    """
+    Returns split y and an id list to split questionnaire and time_series data
+    """
+    if stratify:
+        y = y_data['label']
+        X_train_id, X_test_id,  y_train, y_test = train_test_split(id_list, y, test_size=test_size,random_state=random_state, stratify= y)
+
+        return X_train_id, X_test_id, y_train, y_test
+
+
 class Preprocess_Q:
     """
     This function reads q data and preprocesses them for a final analysis
@@ -128,9 +138,6 @@ class Preprocess_Q:
         r_scaler = RobustScaler()
         encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore', sparse_output=False)
 
-        mm_scaler = MinMaxScaler()
-        r_scaler = RobustScaler()
-        encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore', sparse_output=False)
 
         if feature_importance:
             data_to_rscale = ['age_at_diagnosis', 'age']
@@ -154,7 +161,7 @@ class Preprocess_Q:
 
     def transform(self, X):
 
-        return self.column_prep.transform(X)
+        return pd.DataFrame(self.column_prep.transform(X), columns = self.column_prep.get_feature_names_out())
 
 
 def load_timeseries_data(path: str):
@@ -195,6 +202,32 @@ def load_timeseries_data(path: str):
     return da
 
 
+class Preprocess_Time_Boss:
+
+    def __init__(self, strategy = 'quantile',
+                 word_size = 2, window_size = 30, window_step = 2, n_bins = 4):
+        self.strategy = strategy,
+        self.word_size = word_size,
+        self.window_size = window_size,
+        self.window_step = window_step,
+        self.n_bins = n_bins
+
+    def fit(self, time_data):
+
+        self.boss = channel_wise_boss(strategy = self.strategy, word_size = self.word_size,
+                                 window_size=self.window_size, window_step = self.window_step,
+                                 n_bins = self.n_bins)
+        return self
+
+    def transform(self, time_data):
+
+        boss_data =  boss_transform_data(time_data)
+
+        return boss_data
+
+
+
+
 def preprocess_input(df: pd.DataFrame, transformer=None):
     """
     Function takes a DataFrame and returns tranformed features.
@@ -203,14 +236,3 @@ def preprocess_input(df: pd.DataFrame, transformer=None):
     if transformer is None:
         raise ValueError("Transformer must be provided for inference.")
     return transformer.transform(df)
-
-
-def train_test_split_ids (id_list, y_data, test_size = 0.2, random_state = None, stratify = True):
-    """
-    Returns split y and an id list to split questionnaire and time_series data
-    """
-    if stratify:
-        y = y_data['label']
-        X_train_id, X_test_id,  y_train, y_test = train_test_split(id_list, y, test_size=test_size,random_state=random_state, stratify= y)
-
-        return X_train_id, X_test_id, y_train, y_test
