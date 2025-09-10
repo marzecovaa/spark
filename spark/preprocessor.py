@@ -47,18 +47,21 @@ def preprocessor(input_csv: str):
     df.loc[mask,'age_at_diagnosis'] = df.loc[mask,'age']
 
     #define X, Y
-    X = df.drop(columns = ['id','label'])
+    # X = df.drop(columns = ['id','label'])
+    X = df.drop(columns = ['label'])
     y = df['label']
 
     #split train and test
     X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.20, random_state=42, stratify = y)
 
+    X_train_ids = X_train['id']
+    X_test_ids = X_test['id']
 
     #encoding
     r_scaler = RobustScaler()
     mm_scaler = MinMaxScaler()
-    encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore')
+    encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore',sparse_output=False)
 
     data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
     data_to_mmscale = ['bmi']
@@ -79,7 +82,7 @@ def preprocessor(input_csv: str):
     X_train = transformer.transform(X_train)
     X_test = transformer.transform(X_test)
 
-    return X_train, X_test, y_train, y_test
+    return X_train, X_test, X_train_ids, X_test_ids, y_train, y_test
 
 
 
