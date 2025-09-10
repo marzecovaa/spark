@@ -21,11 +21,8 @@ def preprocessor(input_csv: str):
     TO DO: split train/test into a separate function?
     TO DO: data load func?
     """
-
     #load csv file
     df = pd.read_csv(input_csv)
-
-
     #drop unnecessary columns
     columns_to_drop = ['study_id_x',
                        'study_id_y',
@@ -36,24 +33,40 @@ def preprocessor(input_csv: str):
                        'questionnaire_name',
                        'resource_type',
                        'questionnaire_id','Unnamed: 0']
-
     df = df.drop(columns= columns_to_drop)
-
     #add feature BMI
     df['bmi'] = (df.weight)/((df.height/100)**2)
-
     #impute age at diagnosis for missing values
     mask = df['age_at_diagnosis']==0
     df.loc[mask,'age_at_diagnosis'] = df.loc[mask,'age']
-
     #define X, Y
     # X = df.drop(columns = ['id','label'])
     X = df.drop(columns = ['label'])
     y = df['label']
-
     #split train and test
     X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.20, random_state=42, stratify = y)
+    X_train_ids = X_train['id']
+    X_test_ids = X_test['id']
+    #encoding
+    r_scaler = RobustScaler()
+    mm_scaler = MinMaxScaler()
+    encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore',sparse_output=False)
+    data_to_rscale = ['age_at_diagnosis', 'age', 'height', 'weight']
+    data_to_mmscale = ['bmi']
+    data_to_encode = X.drop(columns = ['age_at_diagnosis', 'age','height',
+                                       'weight','bmi','subject_id']).columns
+    column_prep = ColumnTransformer(transformers=[
+            ("robust", r_scaler, data_to_rscale),
+            ("mm", mm_scaler, data_to_mmscale),
+            ("enc",encoder, data_to_encode)
+        ])
+    transformer = column_prep.fit(X_train)
+    # Save transformer immediately
+    save_transformer(transformer)
+    X_train = transformer.transform(X_train)
+    X_test = transformer.transform(X_test)
+    return X_train, X_test, X_train_ids, X_test_ids, y_train, y_test
 
     X_train_ids = X_train['id']
     X_test_ids = X_test['id']
@@ -84,6 +97,53 @@ def preprocessor(input_csv: str):
 
     return X_train, X_test, X_train_ids, X_test_ids, y_train, y_test
 
+
+
+def preprocessor_reduced(input_csv: str):
+    """
+    This function reads the merged csv file, selects relevant columns,
+    performs a simple preprocessing on questionnaire (one hot encoding)
+    + demographics data
+    The data is split in the train_test...
+    TO DO: split train/test into a separate function?
+    TO DO: data load func?
+    """
+    #load csv file
+    df = pd.read_csv(input_csv)
+    #drop unnecessary columns
+    columns_to_keep = ['id', 'age_at_diagnosis', 'age',
+                       'gender', 'appearance_in_kinship',
+                       '02', '03', '09', '13', '17', '20','label']
+    df = df[columns_to_keep]
+
+    #impute age at diagnosis for missing values
+    mask = df['age_at_diagnosis']==0
+    df.loc[mask,'age_at_diagnosis'] = df.loc[mask,'age']
+    #define X, Y
+    # X = df.drop(columns = ['id','label'])
+    X = df.drop(columns = ['label'])
+    y = df['label']
+    #split train and test
+    X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.20, random_state=42, stratify = y)
+    X_train_ids = X_train['id']
+    X_test_ids = X_test['id']
+    #encoding
+    r_scaler = RobustScaler()
+    mm_scaler = MinMaxScaler()
+    encoder = OneHotEncoder(drop = 'if_binary', handle_unknown='ignore',sparse_output=False)
+    data_to_rscale = ['age_at_diagnosis', 'age']
+    data_to_encode = ['gender', 'appearance_in_kinship','02', '03', '09', '13', '17', '20']
+    column_prep = ColumnTransformer(transformers=[
+            ("robust", r_scaler, data_to_rscale),
+            ("enc",encoder, data_to_encode)
+        ])
+    transformer = column_prep.fit(X_train)
+    # Save transformer immediately
+    save_transformer(transformer)
+    X_train = transformer.transform(X_train)
+    X_test = transformer.transform(X_test)
+    return X_train, X_test, X_train_ids, X_test_ids, y_train, y_test
 
 
 def load_q_data(input_csv: str):
@@ -208,23 +268,23 @@ def load_timeseries_data(path: str):
 class Preprocess_Time_Boss:
 
     def __init__(self, strategy = 'quantile',
-                 word_size = 2, window_size = 30, window_step = 2, n_bins = 4):
-        self.strategy = strategy,
-        self.word_size = word_size,
-        self.window_size = window_size,
-        self.window_step = window_step,
+                 n_bins = 4, window_step = 2, window_size = 10, word_size = 6):
+        self.strategy = strategy
+        self.word_size = word_size
+        self.window_size = window_size
+        self.window_step = window_step
         self.n_bins = n_bins
 
     def fit(self, time_data):
 
-        self.boss = channel_wise_boss(strategy = self.strategy, word_size = self.word_size,
+        self.boss = channel_wise_boss(time_data, strategy = self.strategy, word_size = self.word_size,
                                  window_size=self.window_size, window_step = self.window_step,
                                  n_bins = self.n_bins)
         return self
 
     def transform(self, time_data):
 
-        boss_data =  boss_transform_data(time_data)
+        boss_data =  boss_transform_data(self.boss, time_data)
 
         return boss_data
 
