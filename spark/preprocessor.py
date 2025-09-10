@@ -144,7 +144,6 @@ def preprocessor_reduced(input_csv: str):
     return X_train, X_test, X_train_ids, X_test_ids, y_train, y_test
 
 
-
 def load_q_data(input_csv: str):
     """
     This function reads the merged csv file and returns the data frame and list of ids
